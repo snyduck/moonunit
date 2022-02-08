@@ -8,11 +8,12 @@ const client = new Client({
         Intents.FLAGS.GUILD_MESSAGES
     ]
 })
-
+let gremblo = "Gremblo"
 // Require dotenv to read environment variables
 const dotenv = require('dotenv');
 const fs = require('fs');
 
+// Initialize commands
 const commands = {}
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -25,18 +26,23 @@ commandFiles.forEach(commandFile => {
 
 dotenv.config();
 const token = process.env.TOKEN;
-const prefix = process.env.PREFIX;
 const clientID = process.env.CLIENT_ID;
 
 // When the client is ready, run this code (only once)
 client.on('ready', () => {
+    guilds = client.guilds.cache
+    guilds.forEach(guild => {
+        console.log(`Bot has logged onto: ${guild.name}`)
+    })
+    console.log(`Client has logged in as: ${client.user.tag}`)
     console.log('Ready!');
 });
 
 client.on('messageCreate', msg => {
-    // Prevent the bot from responding to itself
-    const prefix = msg.content.split(' ')[0]
-    const args = msg.content.split(' ')[1]
+    const msgContent = msg.content
+    const prefix = msgContent.split(' ')[0].toLowerCase()
+    const args = msgContent.split(' ')[1]
+    // Prevent the bot from responding to itself / non-commands
     if (msg.author.id === clientID || commands[prefix] === undefined) {
         return
     }
