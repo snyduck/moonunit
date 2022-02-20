@@ -88,4 +88,4 @@ client.on('messageCreate', msg => {
 })
 
 // Login to Discord with your client's token
-client.login(testToken);
+client.login(token);
