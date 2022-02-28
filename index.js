@@ -4,6 +4,9 @@ const { Client, Intents, Collection, Interaction } = require('discord.js');
 // Require dotenv to read environment variables
 const dotenv = require('dotenv');
 const fs = require('fs');
+var mysql = require('mysql');
+
+// Get environment variables
 dotenv.config();
 const token = process.env.TOKEN;
 const testToken = process.env.TEST_TOKEN;
@@ -12,15 +15,20 @@ const mySQLHost = process.env.MYSQL_HOST;
 const mySQLUser = process.env.MYSQL_USER;
 const mySQLPWD = process.env.MYSQL_PWD;
 
-// DB stuff
-var mysql = require('mysql');
 
 // Create DB connection
-var con = mysql.createConnection({
-    host: mySQLHost,
-    user: mySQLUser,
-    password: mySQLPWD
-});
+try {
+    console.log("Connecting to Moonunit DB")
+    var con = mysql.createConnection({
+        host: mySQLHost,
+        user: mySQLUser,
+        password: mySQLPWD
+    });
+}
+catch (err) {
+    throw err;
+}
+
 
 con.connect()
 
@@ -37,12 +45,17 @@ const commands = {}
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 commandFiles.forEach(commandFile => {
-    const command = require(`./commands/${commandFile}`)
-    if (command.prefix && command.fn) {
-        commands[command.prefix] = command.fn;
+    try {
+        console.log(`Loading module ${commandFile}`)
+        const command = require(`./commands/${commandFile}`)
+        if (command.prefix && command.fn) {
+            commands[command.prefix] = command.fn;
+        }
+    } catch (err) {
+        throw err;
     }
-})
 
+})
 
 // When the client is ready, run this code (only once)
 client.on('ready', () => {
@@ -51,10 +64,10 @@ client.on('ready', () => {
         console.log(`Bot has logged onto: ${guild.name}`)
     })
     console.log(`Client has logged in as: ${client.user.tag}`)
-    commandFiles.forEach( c => (
-        console.log(`Loading module ${c}`)
-    ))
-    console.log('Ready!');
+    // commandFiles.forEach(c => (
+    //     console.log(`Loading module ${c}`)
+    // ))
+    console.log('moonunit online ᕙ(⇀‸↼‶)ᕗ ');
 });
 
 client.on('messageCreate', msg => {
@@ -62,6 +75,7 @@ client.on('messageCreate', msg => {
     const prefix = msgContent.split(' ')[0].toLowerCase()
     const args = msgContent.split(' ')[1]
     const authorID = msg["author"]["id"]
+
     // Prevent the bot from responding to itself / non-commands
     if (msg.author.id === clientID || commands[prefix] === undefined) {
         return
@@ -72,7 +86,9 @@ client.on('messageCreate', msg => {
 
         if (prefix.startsWith("?!")) {
             con.query(`SELECT * FROM moonunit.admins WHERE userid = ${authorID};`, function (err, results) {
-                if (err) throw err;
+                if (err) {
+                    throw err
+                };
                 if (results.length === 0) {
                     console.log("You do not have permission")
                 }

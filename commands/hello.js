@@ -6,6 +6,7 @@ module.exports = {
     fn: (msg, args) =>{
         if (msg.author.id === '906739475030360094' || msg.author.id === '148627778579857408'){
             msg.reply("Hello!")
+            console.log(args)
         }
         else {
             const curses = ["[EXPLETIVE DELETED]","[CENSORED]","[REDACTED]","[CAN'T SAY THAT ON A CHRISTIAN SERVER]"]
